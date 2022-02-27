@@ -10,6 +10,8 @@ from PIL import Image
 import os
 import os.path
 
+import csv
+
 IMG_EXTENSIONS = [
     '.jpg', '.JPG', '.jpeg', '.JPEG',
     '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP',
@@ -31,6 +33,24 @@ def make_dataset(dir, max_dataset_size=float("inf")):
                 path = os.path.join(root, fname)
                 images.append(path)
     return images[:min(max_dataset_size, len(images))]
+
+
+def make_dataset_from_csv(dir, csv_file, max_dataset_size=float("inf")):
+    # Collect all paths to directories containing data
+    csv_paths = []
+    with open(csv_file, 'r') as csvfile: 
+        lines = csvfile.readlines()
+        for line in lines:
+            line = line.replace('\n', "")
+            csv_paths.append(dir + line)
+    # Iterate paths to get all paths to images
+    images = []
+    for dir_path in csv_paths:
+        tmp_images = make_dataset(dir_path)
+        images.append(tmp_images)
+    images = [item for sublist in images for item in sublist]
+    print("found image paths num:", len(images))
+    return images[:min(max_dataset_size, len(images))] 
 
 
 def default_loader(path):
